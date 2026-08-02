@@ -4,6 +4,9 @@ This repository contains the auditable data-preparation foundation for an
 Adamawa Fulfulde TTS research baseline. Source speech corpora remain unchanged
 and are excluded from Git.
 
+When continuing this work in a new Codex session or on EC2, read the portable
+[session handoff](sessions.md) before taking action.
+
 ## Current corpus layout
 
 Place the extracted Common Voice language directory at:
@@ -52,3 +55,23 @@ Audio decoding, clipping, silence, sample-rate, and noise measurements require
 a later full audio scan. The current report labels those measurements as not
 run; it does not silently treat present MP3 files as decoded or clean.
 
+## Cheap CPU gate before GPU training
+
+The [50-step CPU sanity protocol](docs/cpu_sanity_protocol.md) adapts the
+earlier Tiv gate to direct Adamawa Fulfulde characters. It is a bounded VITS
+data-flow and orthography check, not an architecture comparison or speech-
+quality evaluation.
+
+The completed run and its limitations are recorded in the
+[CPU sanity results](docs/cpu_sanity_results.md).
+
+## Separate Adamawa-Fulfulde-TTS-Dataset
+
+The non-Common-Voice corpus follows its own
+[audit and lineage protocol](docs/adamawa_dataset_protocol.md). It retains a
+separate source label and manifests; it is never silently merged with Common
+Voice.
+
+Its completed [audit and CPU sanity results](docs/adamawa_dataset_results.md)
+record the usable duration, character-coverage correction, remaining review
+flags, and bounded GPU-smoke recommendation.

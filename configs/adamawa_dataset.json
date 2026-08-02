@@ -1,0 +1,28 @@
+{
+  "seed": 20260802,
+  "dataset_dir": "Adamawa-Fulfulde-TTS-Dataset",
+  "mapping_file": "Mapping_MP3.tsv",
+  "audio_dir": "audio_files_mp3",
+  "report_dir": "reports/generated/adamawa_fulfulde_tts_dataset",
+  "manifest_dir": "data/manifests/adamawa_fulfulde_tts_dataset",
+  "source": {
+    "dataset": "Adamawa-Fulfulde-TTS-Dataset",
+    "dataset_version": "local-snapshot-2026-08-02",
+    "language_code": "fub",
+    "variety_scope": "Adamawa Fulfulde; exact collection geography pending provenance record",
+    "speaker_coverage": "not supplied in Mapping_MP3.tsv",
+    "licence": "user-confirmed-private-licence; exact identifier pending",
+    "licence_status": "confirmed by user on 2026-08-02; evidence file not present in workspace",
+    "local_research_training_authorized": true,
+    "redistribution_status": "not established"
+  },
+  "filters": {
+    "minimum_duration_ms": 1000,
+    "maximum_duration_ms": 15000
+  },
+  "splits": {
+    "validation_fraction": 0.1,
+    "test_fraction": 0.1
+  }
+}
+

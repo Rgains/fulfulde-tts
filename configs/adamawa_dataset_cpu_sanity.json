@@ -1,0 +1,23 @@
+{
+  "seed": 20260802,
+  "dataset_dir": "Adamawa-Fulfulde-TTS-Dataset",
+  "manifest_dir": "data/manifests/adamawa_fulfulde_tts_dataset",
+  "output_dir": "outputs/adamawa_dataset_cpu_sanity/data",
+  "selection": {
+    "train_count": 50,
+    "validation_count": 5,
+    "test_count": 5,
+    "minimum_duration_seconds": 2.0,
+    "maximum_duration_seconds": 10.0,
+    "required_characters": "ɓƁɗƊƴƳŋ’",
+    "allowed_text_flags": ["typographic_punctuation"],
+    "required_sequences": ["aa", "ee", "ii", "oo", "uu"]
+  },
+  "audio": {
+    "sample_rate": 24000
+  },
+  "training": {
+    "steps": 50,
+    "cpu_threads": 4
+  }
+}

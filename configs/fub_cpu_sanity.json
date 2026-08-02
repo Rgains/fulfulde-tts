@@ -1,0 +1,23 @@
+{
+  "seed": 20260802,
+  "dataset_dir": "cv-corpus-26.0-2026-06-12/fub",
+  "manifest_dir": "data/manifests/common_voice_fub_v26_0",
+  "output_dir": "outputs/cpu_sanity/data",
+  "selection": {
+    "train_count": 50,
+    "validation_count": 5,
+    "test_count": 5,
+    "minimum_duration_seconds": 2.0,
+    "maximum_duration_seconds": 10.0,
+    "required_characters": "ɓƁɗƊƴƳŋŊʼ",
+    "required_sequences": ["aa", "ee", "ii", "oo", "uu"]
+  },
+  "audio": {
+    "sample_rate": 24000
+  },
+  "training": {
+    "steps": 50,
+    "cpu_threads": 4
+  }
+}
+
