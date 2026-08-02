@@ -1,0 +1,30 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Original speech corpora must remain outside Git.
+/cv-corpus-*/
+/Adamawa-Fulfulde-TTS-Dataset/
+/data/raw/
+/data/interim/audio/
+/data/processed/audio/
+
+# Generated training and inference artifacts.
+/artifacts/
+/checkpoints/
+/outputs/
+/runs/
+/wandb/
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+
+# Generated audit/manifests are reproducible from local source data.
+/data/manifests/
+/reports/generated/
+
