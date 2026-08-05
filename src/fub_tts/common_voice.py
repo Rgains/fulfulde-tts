@@ -10,6 +10,9 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
 
+import numpy as np
+import soundfile as sf
+
 from .text import analyze_text, normalize_text, words
 
 EXPECTED_LOCALE = "fub"
@@ -24,6 +27,59 @@ REQUIRED_CLIP_COLUMNS = {
     "sentence",
     "locale",
 }
+
+# Same thresholds used by scripts/audit_adamawa_dataset.py, so "usable
+# duration" means the same thing across both source datasets.
+USABLE_MINIMUM_DURATION_MS = 1_000
+USABLE_MAXIMUM_DURATION_MS = 15_000
+USABLE_MAXIMUM_CLIPPING_RATIO = 0.001
+USABLE_MAXIMUM_SILENCE_RATIO = 0.60
+
+
+def inspect_audio(path: Path) -> dict[str, Any]:
+    """Decode one clip and measure it. Never modifies the source file."""
+
+    try:
+        samples, sample_rate = sf.read(path, dtype="float32", always_2d=True)
+    except Exception as error:  # libsndfile raises several backend-specific types
+        return {"decode_status": "error", "decode_error": f"{type(error).__name__}: {error}"}
+    if samples.size == 0:
+        return {"decode_status": "error", "decode_error": "empty decoded audio"}
+    mono = np.mean(samples, axis=1, dtype=np.float32)
+    if not np.isfinite(mono).all():
+        return {"decode_status": "error", "decode_error": "non-finite decoded samples"}
+    absolute = np.abs(mono)
+    return {
+        "decode_status": "ok",
+        "sample_rate": int(sample_rate),
+        "channels": int(samples.shape[1]),
+        "duration_ms": round(len(mono) * 1000 / int(sample_rate)),
+        "peak": float(absolute.max()),
+        "rms": float(np.sqrt(np.mean(np.square(mono), dtype=np.float64))),
+        "clipping_ratio": float(np.mean(absolute >= 0.999)),
+        "silence_ratio": float(np.mean(absolute <= 10 ** (-50 / 20))),
+        "dc_offset": float(np.mean(mono, dtype=np.float64)),
+    }
+
+
+def is_usable(audio: dict[str, Any]) -> bool:
+    """Apply the same duration/clipping/silence gate used for the separate dataset."""
+
+    if audio.get("decode_status") != "ok":
+        return False
+    duration_ms = audio["duration_ms"]
+    return (
+        USABLE_MINIMUM_DURATION_MS <= duration_ms <= USABLE_MAXIMUM_DURATION_MS
+        and audio["clipping_ratio"] < USABLE_MAXIMUM_CLIPPING_RATIO
+        and audio["silence_ratio"] < USABLE_MAXIMUM_SILENCE_RATIO
+    )
+
+
+def _percentile(values: list[float], fraction: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    return ordered[min(len(ordered) - 1, int(fraction * len(ordered)))]
 
 
 def read_tsv(path: Path) -> list[dict[str, str]]:
@@ -108,10 +164,76 @@ def _validate_schema(rows: Iterable[dict[str, str]], source: Path) -> None:
         raise ValueError(f"{source} is missing columns: {sorted(missing)}")
 
 
-def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
+def _audio_quality_section(
+    audio_scan: dict[str, dict[str, Any]], run_audio_scan: bool
+) -> dict[str, Any]:
+    if not run_audio_scan:
+        return {
+            "status": "not_run",
+            "decoded_clips": None,
+            "corrupt_clips": None,
+            "sample_rate_distribution": None,
+            "clipping_statistics": None,
+            "silence_statistics": None,
+            "noise_variability": None,
+            "required_next_step": "Run a full FFmpeg/PCM audio scan before training.",
+        }
+    good = [audio for audio in audio_scan.values() if audio.get("decode_status") == "ok"]
+    usable = [audio for audio in audio_scan.values() if is_usable(audio)]
+    durations_ms = [float(audio["duration_ms"]) for audio in good]
+    clipping_values = [audio["clipping_ratio"] for audio in good]
+    silence_values = [audio["silence_ratio"] for audio in good]
+    return {
+        "status": "ok",
+        "decoded_clips": len(good),
+        "decode_failures": len(audio_scan) - len(good),
+        "usable_clips": len(usable),
+        "usable_hours": round(sum(audio["duration_ms"] for audio in usable) / 3_600_000, 6),
+        "usable_definition": (
+            f"decode ok, {USABLE_MINIMUM_DURATION_MS}-{USABLE_MAXIMUM_DURATION_MS} ms, "
+            f"clipping_ratio < {USABLE_MAXIMUM_CLIPPING_RATIO}, "
+            f"silence_ratio < {USABLE_MAXIMUM_SILENCE_RATIO}"
+        ),
+        "sample_rate_distribution": dict(
+            sorted(Counter(str(audio["sample_rate"]) for audio in good).items())
+        ),
+        "channel_distribution": dict(
+            sorted(Counter(str(audio["channels"]) for audio in good).items())
+        ),
+        "duration_distribution_ms": {
+            "minimum": min(durations_ms) if durations_ms else None,
+            "median": statistics.median(durations_ms) if durations_ms else None,
+            "p95": _percentile(durations_ms, 0.95),
+            "maximum": max(durations_ms) if durations_ms else None,
+        },
+        "clipping_ratio_distribution": {
+            "median": statistics.median(clipping_values) if clipping_values else None,
+            "p95": _percentile(clipping_values, 0.95),
+            "maximum": max(clipping_values) if clipping_values else None,
+        },
+        "silence_ratio_distribution": {
+            "median": statistics.median(silence_values) if silence_values else None,
+            "p95": _percentile(silence_values, 0.95),
+            "maximum": max(silence_values) if silence_values else None,
+        },
+        "clips_clipping_ratio_at_or_above_threshold": sum(
+            value >= USABLE_MAXIMUM_CLIPPING_RATIO for value in clipping_values
+        ),
+        "clips_silence_ratio_at_or_above_threshold": sum(
+            value >= USABLE_MAXIMUM_SILENCE_RATIO for value in silence_values
+        ),
+    }
+
+
+def audit_common_voice(dataset_dir: Path, *, run_audio_scan: bool = False) -> dict[str, Any]:
     """Build a metadata-level integrity and suitability audit.
 
-    This function deliberately does not claim to decode or assess MP3 quality.
+    With ``run_audio_scan=False`` (the default), this function deliberately
+    does not claim to decode or assess MP3 quality -- it is fast and safe to
+    call repeatedly, including in tests with placeholder clip files. Pass
+    ``run_audio_scan=True`` to additionally decode every validated clip with
+    a physically present file and fill in real audio-quality measurements
+    and per-speaker usable duration.
     """
 
     dataset_dir = dataset_dir.resolve()
@@ -146,6 +268,17 @@ def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
         durations[path] for path in validated_paths if path in durations
     ]
 
+    # Decode every validated clip with a physically present file. Skipped by
+    # default so metadata-only callers (including the fast unit test) stay
+    # fast and do not require real decodable audio on disk.
+    audio_scan: dict[str, dict[str, Any]] = {}
+    if run_audio_scan:
+        for path_name in dict.fromkeys(validated_paths):
+            if path_name not in physical_audio:
+                audio_scan[path_name] = {"decode_status": "missing_file"}
+            else:
+                audio_scan[path_name] = inspect_audio(clips_dir / path_name)
+
     speaker_data: dict[str, dict[str, Any]] = defaultdict(
         lambda: {
             "clips": 0,
@@ -154,6 +287,8 @@ def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
             "sentence_ids": set(),
             "words": set(),
             "chars": set(),
+            "usable_clips": 0,
+            "usable_duration_ms": 0,
         }
     )
     character_counts: Counter[str] = Counter()
@@ -177,6 +312,9 @@ def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
         speaker["sentence_ids"].add(row["sentence_id"])
         speaker["words"].update(word.casefold() for word in words(normalized))
         speaker["chars"].update(character for character in normalized if not character.isspace())
+        if run_audio_scan and is_usable(audio_scan.get(row["path"], {})):
+            speaker["usable_clips"] += 1
+            speaker["usable_duration_ms"] += audio_scan[row["path"]]["duration_ms"]
 
     speaker_ranking = []
     for speaker_id, values in speaker_data.items():
@@ -193,6 +331,10 @@ def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
                 "unique_sentences": len(values["sentence_ids"]),
                 "lexical_coverage_words": len(values["words"]),
                 "character_coverage": len(values["chars"]),
+                "usable_clips": values["usable_clips"] if run_audio_scan else None,
+                "usable_duration_hours": (
+                    round(values["usable_duration_ms"] / 3_600_000, 6) if run_audio_scan else None
+                ),
             }
         )
     speaker_ranking.sort(
@@ -318,19 +460,15 @@ def audit_common_voice(dataset_dir: Path) -> dict[str, Any]:
         "speaker_analysis": {
             "decision_case": provisional_case,
             "decision_is_provisional": True,
-            "reason": "Duration ranking precedes audio-quality filtering and native-speaker review.",
+            "reason": (
+                "Audio-quality filtering has been applied to usable-duration figures, "
+                "but the decision remains provisional pending native-speaker review."
+                if run_audio_scan
+                else "Duration ranking precedes audio-quality filtering and native-speaker review."
+            ),
             "ranking": speaker_ranking,
         },
-        "audio_quality": {
-            "status": "not_run",
-            "decoded_clips": None,
-            "corrupt_clips": None,
-            "sample_rate_distribution": None,
-            "clipping_statistics": None,
-            "silence_statistics": None,
-            "noise_variability": None,
-            "required_next_step": "Run a full FFmpeg/PCM audio scan before training.",
-        },
+        "audio_quality": _audio_quality_section(audio_scan, run_audio_scan),
         "limitations": [
             "Common Voice was collected primarily for ASR rather than studio-quality TTS.",
             "Speaker duration does not establish recording quality, consent for identity cloning, or production suitability.",
@@ -397,22 +535,50 @@ def audit_markdown(report: dict[str, Any]) -> str:
             "",
             "## Provisional speaker decision",
             "",
-            f"Decision case: **{speaker['decision_case']}**. This remains provisional until the full audio-quality scan.",
+            f"Decision case: **{speaker['decision_case']}**. {speaker['reason']}",
             "",
-            "| Rank | Anonymous speaker | Hours | Clips | Unique sentences |",
-            "|---:|---|---:|---:|---:|",
+            "| Rank | Anonymous speaker | Hours | Usable hours | Clips | Usable clips | Unique sentences |",
+            "|---:|---|---:|---:|---:|---:|---:|",
         ]
     )
     for rank, row in enumerate(speaker["ranking"][:10], start=1):
+        usable_hours = row["usable_duration_hours"]
+        usable_hours_text = f"{usable_hours:.3f}" if usable_hours is not None else "-"
+        usable_clips = row["usable_clips"] if row["usable_clips"] is not None else "-"
         lines.append(
-            f"| {rank} | `{row['speaker_id']}` | {row['duration_hours']:.3f} | {row['validated_clips']:,} | {row['unique_sentences']:,} |"
+            f"| {rank} | `{row['speaker_id']}` | {row['duration_hours']:.3f} | "
+            f"{usable_hours_text} | {row['validated_clips']:,} | "
+            f"{usable_clips} | {row['unique_sentences']:,} |"
         )
-    lines.extend(
-        [
+    audio_quality = report["audio_quality"]
+    if audio_quality["status"] == "ok":
+        audio_quality_lines = [
+            "",
+            "## Audio-quality status",
+            "",
+            f"- Decoded clips: {audio_quality['decoded_clips']:,}",
+            f"- Decode failures: {audio_quality['decode_failures']}",
+            f"- Usable clips ({audio_quality['usable_definition']}): {audio_quality['usable_clips']:,}",
+            f"- Usable duration: {audio_quality['usable_hours']:.3f} hours",
+            f"- Source sample rates: {audio_quality['sample_rate_distribution']}",
+            f"- Source channel counts: {audio_quality['channel_distribution']}",
+            f"- Median duration: {audio_quality['duration_distribution_ms']['median'] / 1000:.3f} seconds",
+            f"- 95th-percentile duration: {audio_quality['duration_distribution_ms']['p95'] / 1000:.3f} seconds",
+            f"- Clips at/above the clipping threshold: {audio_quality['clips_clipping_ratio_at_or_above_threshold']}",
+            f"- Clips at/above the silence threshold: {audio_quality['clips_silence_ratio_at_or_above_threshold']}",
+            "",
+            "Noise-floor variability beyond peak/RMS/clipping/silence has not been separately measured.",
+        ]
+    else:
+        audio_quality_lines = [
             "",
             "## Audio-quality status",
             "",
             "Audio decoding, corrupt-file detection, sample-rate, clipping, silence, and noise measurements have **not yet run**. File presence is not treated as proof of clean or decodable audio.",
+        ]
+    lines.extend(audio_quality_lines)
+    lines.extend(
+        [
             "",
             "## Limitations",
             "",

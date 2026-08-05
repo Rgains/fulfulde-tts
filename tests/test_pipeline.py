@@ -4,7 +4,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from fub_tts.common_voice import audit_common_voice
+import numpy as np
+import soundfile as sf
+
+from fub_tts.common_voice import audit_common_voice, inspect_audio, is_usable
 from fub_tts.split import build_manifests
 
 
@@ -116,6 +119,87 @@ class PipelineTests(unittest.TestCase):
         rejected = (first / "rejected.tsv").read_text(encoding="utf-8")
         self.assertIn("clip-999.mp3", rejected)
         json.loads((first / "summary.json").read_text(encoding="utf-8"))
+
+
+class AudioScanTests(unittest.TestCase):
+    """inspect_audio/is_usable and the opt-in full decoded-audio scan."""
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.clips_dir = Path(self.temporary.name) / "clips"
+        self.clips_dir.mkdir()
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def _write_tone(self, name: str, seconds: float = 2.0, sample_rate: int = 24000) -> Path:
+        path = self.clips_dir / name
+        t = np.linspace(0, seconds, int(seconds * sample_rate), endpoint=False)
+        tone = 0.2 * np.sin(2 * np.pi * 220 * t).astype(np.float32)
+        sf.write(path, tone, sample_rate, format="WAV")
+        return path
+
+    def _write_silence(self, name: str, seconds: float = 2.0, sample_rate: int = 24000) -> Path:
+        path = self.clips_dir / name
+        sf.write(path, np.zeros(int(seconds * sample_rate), dtype=np.float32), sample_rate, format="WAV")
+        return path
+
+    def test_inspect_audio_measures_a_real_clip(self) -> None:
+        path = self._write_tone("tone.mp3")
+        audio = inspect_audio(path)
+        self.assertEqual(audio["decode_status"], "ok")
+        self.assertEqual(audio["sample_rate"], 24000)
+        self.assertAlmostEqual(audio["duration_ms"], 2000, delta=5)
+        self.assertLess(audio["silence_ratio"], 0.1)
+        self.assertTrue(is_usable(audio))
+
+    def test_inspect_audio_flags_decode_errors(self) -> None:
+        path = self.clips_dir / "garbage.mp3"
+        path.write_bytes(b"not actually audio")
+        audio = inspect_audio(path)
+        self.assertEqual(audio["decode_status"], "error")
+        self.assertFalse(is_usable(audio))
+
+    def test_is_usable_rejects_near_silent_clips(self) -> None:
+        path = self._write_silence("silent.mp3")
+        audio = inspect_audio(path)
+        self.assertEqual(audio["decode_status"], "ok")
+        self.assertGreaterEqual(audio["silence_ratio"], 0.60)
+        self.assertFalse(is_usable(audio))
+
+    def test_full_scan_fills_in_audio_quality_and_usable_duration(self) -> None:
+        root = Path(self.temporary.name) / "cv-corpus-test" / "fub"
+        (root / "clips").mkdir(parents=True)
+        (root / "README.md").write_text("# fub\n", encoding="utf-8")
+        self.clips_dir = root / "clips"
+
+        good = self._write_tone("clip-0.mp3")
+        quiet = self._write_silence("clip-1.mp3")
+        rows = [
+            clip_row(0, "Ɓiŋgel jooɗi ɗoo.", "sentence-0", speaker="speaker-a"),
+            clip_row(1, "Ɓiŋgel jooɗi ɗoo.", "sentence-0", speaker="speaker-a"),
+        ]
+        write_tsv(root / "validated.tsv", CLIP_FIELDS, rows)
+        write_tsv(root / "invalidated.tsv", CLIP_FIELDS, [])
+        write_tsv(root / "other.tsv", CLIP_FIELDS, [])
+        write_tsv(root / "train.tsv", CLIP_FIELDS, rows)
+        write_tsv(root / "dev.tsv", CLIP_FIELDS, [])
+        write_tsv(root / "test.tsv", CLIP_FIELDS, [])
+        write_tsv(
+            root / "clip_durations.tsv",
+            ["clip", "duration[ms]"],
+            [{"clip": "clip-0.mp3", "duration[ms]": "2000"}, {"clip": "clip-1.mp3", "duration[ms]": "2000"}],
+        )
+        self.assertTrue(good.exists() and quiet.exists())
+
+        report = audit_common_voice(root, run_audio_scan=True)
+        self.assertEqual(report["audio_quality"]["status"], "ok")
+        self.assertEqual(report["audio_quality"]["decoded_clips"], 2)
+        self.assertEqual(report["audio_quality"]["usable_clips"], 1)
+        ranking = {row["speaker_id"]: row for row in report["speaker_analysis"]["ranking"]}
+        (only_speaker,) = ranking.values()
+        self.assertEqual(only_speaker["usable_clips"], 1)
+        self.assertAlmostEqual(only_speaker["usable_duration_hours"], 2000 / 3_600_000, places=6)
 
 
 if __name__ == "__main__":

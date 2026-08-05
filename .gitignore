@@ -12,6 +12,7 @@ __pycache__/
 /data/raw/
 /data/interim/audio/
 /data/processed/audio/
+/data/derived/
 
 # Generated training and inference artifacts.
 /artifacts/

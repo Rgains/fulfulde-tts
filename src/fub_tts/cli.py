@@ -18,6 +18,11 @@ def _parser() -> argparse.ArgumentParser:
     audit = subparsers.add_parser("audit", help="audit Common Voice metadata and file presence")
     audit.add_argument("--dataset-dir", type=Path, required=True)
     audit.add_argument("--report-dir", type=Path, required=True)
+    audit.add_argument(
+        "--full-audio-scan",
+        action="store_true",
+        help="decode every validated clip and measure real audio quality (slow)",
+    )
 
     manifests = subparsers.add_parser(
         "manifests", help="build deterministic sentence-disjoint manifests"
@@ -33,6 +38,11 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--manifest-dir", type=Path, required=True)
     prepare.add_argument("--seed", default="fub-common-voice-v1")
     prepare.add_argument("--maximum-duration-ms", type=int, default=15_000)
+    prepare.add_argument(
+        "--full-audio-scan",
+        action="store_true",
+        help="decode every validated clip and measure real audio quality (slow)",
+    )
     return parser
 
 
@@ -40,7 +50,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
 
     if args.command in {"audit", "prepare"}:
-        report = audit_common_voice(args.dataset_dir)
+        report = audit_common_voice(args.dataset_dir, run_audio_scan=args.full_audio_scan)
         json_path, markdown_path = write_audit(report, args.report_dir)
         print(f"Wrote {json_path}")
         print(f"Wrote {markdown_path}")
