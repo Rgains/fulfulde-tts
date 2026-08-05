@@ -21,6 +21,9 @@ cpu-sanity = [
   "torchvision>=0.22,<0.24",
   "transformers>=4.57,<5",
 ]
+demo = [
+    "streamlit>=1.61.1",
+]
 
 [project.scripts]
 fub-tts = "fub_tts.cli:main"
