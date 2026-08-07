@@ -11,6 +11,7 @@ treating this as more than a research baseline.
 from __future__ import annotations
 
 import io
+import os
 from pathlib import Path
 
 import numpy as np
@@ -22,7 +23,8 @@ from TTS.tts.configs.vits_config import VitsConfig
 from TTS.tts.models.vits import Vits
 from TTS.tts.utils.text import cleaners as coqui_cleaners
 
-DEFAULT_RUN = Path(
+REPO_ROOT = Path(__file__).resolve().parents[1]
+EC2_RUN = Path(
     "/home/ubuntu/fulfulde-tts/checkpoints/adamawa-full/"
     "fub_adamawa_full-August-03-2026_12+59PM-e650b45"
 )
@@ -40,9 +42,19 @@ def fub_character_cleaner(text: str) -> str:
 setattr(coqui_cleaners, "fub_character_cleaner", fub_character_cleaner)
 
 
+def resolve_run_dir() -> Path:
+    """Prefer FUB_RUN_DIR, then the repository's local model/ copy, then the EC2 run."""
+    override = os.environ.get("FUB_RUN_DIR")
+    if override:
+        return Path(override)
+    local = REPO_ROOT / "model"
+    return local if (local / "config.json").exists() else EC2_RUN
+
+
 @st.cache_resource
 def load_model(run_dir_str: str) -> Vits:
     run_dir = Path(run_dir_str)
+    torch.set_num_threads(int(os.environ.get("FUB_THREADS", "4")))
     config = VitsConfig()
     config.load_json(str(run_dir / "config.json"))
     model = Vits.init_from_config(config)
@@ -84,7 +96,16 @@ def main() -> None:
         "your listening feedback is exactly what this demo is for."
     )
 
-    model = load_model(str(DEFAULT_RUN))
+    run_dir = resolve_run_dir()
+    checkpoint = run_dir / "checkpoint_53000.pth"
+    if not checkpoint.exists():
+        st.error(
+            f"No checkpoint at {checkpoint}. Point FUB_RUN_DIR at a directory "
+            "holding config.json and checkpoint_53000.pth."
+        )
+        st.stop()
+
+    model = load_model(str(run_dir))
 
     if "text_input" not in st.session_state:
         st.session_state.text_input = EXAMPLE_SENTENCES[0]

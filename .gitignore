@@ -29,3 +29,4 @@ __pycache__/
 /data/manifests/
 /reports/generated/
 
+/model
