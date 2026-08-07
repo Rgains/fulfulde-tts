@@ -12,10 +12,12 @@ This dataset was not merged with Mozilla Common Voice.
 
 ## Licence record
 
-The user confirmed on 2026-08-02 that a licence exists and authorized local
-research training. The workspace still does not contain the exact licence
-identifier or evidence file. Local audit and experimental training proceeded;
-redistribution and model-release rights remain unrecorded rather than inferred.
+The source dataset is distributed under NOODL-1.0. The user confirmed on
+2026-08-02 that local research training was authorized and, on 2026-08-07,
+confirmed that a separate email agreement authorizes release of the derived
+checkpoint for this research demo. The private correspondence is retained
+outside the repository. This permission does not authorize redistribution of
+the source speech dataset.
 
 ## Full audit
 
@@ -102,4 +104,3 @@ training run:
 
 The 50-step checkpoint is diagnostic and says nothing about naturalness or
 speaker consistency.
-

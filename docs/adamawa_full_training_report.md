@@ -31,10 +31,12 @@ text.
 
 The source snapshot contains 1,302 mapped MP3 recordings and one additional
 unreferenced MP3. All 1,302 mapped files decoded successfully. Their combined
-duration is 3.542 hours; the source format is mono 48 kHz MP3. The user confirmed
-that a licence exists and explicitly authorized this local training run. The
-exact licence identifier and evidence file are not stored in the repository, so
-redistribution and model-release rights are not inferred here.
+duration is 3.542 hours; the source format is mono 48 kHz MP3. The dataset is
+distributed under NOODL-1.0. The user confirmed authorization for local
+research training on 2026-08-02 and confirmed on 2026-08-07 that a separate
+email agreement authorizes release of the derived checkpoint for this research
+demo. The private correspondence remains outside the repository, and the
+source speech dataset is not redistributed.
 
 `Mapping_MP3.tsv` provides filenames and transcripts but no speaker field.
 Consequently, the experiment uses an unconditioned VITS model and labels speaker
@@ -175,8 +177,9 @@ authorization. Until authorized, the device is left untouched.
 - Speaker metadata is absent, preventing speaker-disjoint evaluation and
   speaker-consistency claims.
 - Native-speaker listening evaluation has not yet been performed.
-- The precise licence identifier and evidence path are not recorded in the
-  workspace, even though local training was authorized by the user.
+- The NOODL-1.0 source licence is recorded. Model release relies on separate
+  email permission confirmed by the user on 2026-08-07; that private
+  correspondence is not stored in the repository.
 - The corpus is small for training a modern TTS model from scratch.
 - Automatic loss values, successful synthesis, and valid WAV structure do not
   prove intelligibility or naturalness.

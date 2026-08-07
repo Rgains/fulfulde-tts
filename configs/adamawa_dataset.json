@@ -11,10 +11,10 @@
     "language_code": "fub",
     "variety_scope": "Adamawa Fulfulde; exact collection geography pending provenance record",
     "speaker_coverage": "not supplied in Mapping_MP3.tsv",
-    "licence": "user-confirmed-private-licence; exact identifier pending",
-    "licence_status": "confirmed by user on 2026-08-02; evidence file not present in workspace",
+    "licence": "NOODL-1.0 with separate model-release permission agreed by email",
+    "licence_status": "dataset licence identified publicly; user confirmed model-release permission by email on 2026-08-07; private correspondence not stored in repository",
     "local_research_training_authorized": true,
-    "redistribution_status": "not established"
+    "redistribution_status": "derived checkpoint authorized for this research-demo release by separate email agreement; source dataset redistribution remains prohibited"
   },
   "filters": {
     "minimum_duration_ms": 1000,
@@ -25,4 +25,3 @@
     "test_fraction": 0.1
   }
 }
-

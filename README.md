@@ -89,3 +89,23 @@ flags, and bounded GPU-smoke recommendation.
 The completed full-corpus model can run without an NVIDIA GPU. See the
 [CPU live-demo guide](docs/adamawa_cpu_demo.md) for one-shot synthesis, a
 localhost browser interface, artifact backup, and the EC2 termination checklist.
+
+## Streamlit research demo
+
+The Streamlit app loads the CPU model from `model/` and accepts Adamawa
+Fulfulde (`fub`) text only:
+
+```bash
+streamlit run scripts/demo_streamlit_adamawa.py
+```
+
+For Streamlit Community Cloud, select Python 3.11 and use
+`scripts/demo_streamlit_adamawa.py` as the main file. Its deployment
+dependencies live beside the entrypoint in `scripts/requirements.txt`, so they
+take precedence over the repository's lightweight default `uv.lock`. The
+checkpoint is stored with Git LFS; clone with Git LFS enabled when running the
+demo elsewhere.
+
+The checkpoint is a research baseline, not a production model. Review
+`model/README.md` for its separate licence notice, lineage, language-variety
+scope, and evaluation limitations.

@@ -98,7 +98,7 @@ audio-path leakage.
 | Decoded successfully | 1,302 / 1,302 |
 | Total mapped duration | 3.542 hours |
 | Source format | mono 48 kHz MP3, throughout |
-| Licence status | User-confirmed and authorized for local research training on 2026-08-02; **exact licence identifier and evidence file not yet recorded in the repository** |
+| Licence status | NOODL-1.0; local research training authorized on 2026-08-02; separate email permission for this derived research-demo checkpoint release confirmed by the user on 2026-08-07 (private correspondence retained outside the repository) |
 
 A full mapped-audio-and-text audit (`scripts/audit_adamawa_dataset.py`)
 applied a duration gate (1–15 s), a silence gate (<60%), and excluded
@@ -266,10 +266,10 @@ benchmarked for concurrent or production-scale serving.
 - **Speaker identity unverified** for `Adamawa-Fulfulde-TTS-Dataset`;
   training proceeded unconditioned and no speaker-disjoint evaluation is
   possible from the supplied metadata.
-- **Licence evidence incomplete.** Local research training was
-  user-authorized for `Adamawa-Fulfulde-TTS-Dataset`, but the exact
-  licence identifier and evidence file are not yet recorded in the
-  repository — redistribution and model-release rights are not inferred.
+- **Model release uses separate permission.** The source dataset is
+  NOODL-1.0 and is not redistributed. Release of this derived research-demo
+  checkpoint relies on separate email permission confirmed by the user on
+  2026-08-07; the private correspondence is retained outside the repository.
 - **Common Voice has not been scaled to full training** — only the
   375-step, 5-speaker smoke gate has run. Its corpus is larger (12.56
   usable hours vs. 1.93) and multi-speaker, so a full run would be a
@@ -311,8 +311,8 @@ benchmarked for concurrent or production-scale serving.
 1. Resolve the `fub`/`fuv` question with whoever owns the deployment
    target (Section 7) — before investing further compute either way.
 2. Native-speaker listening review of both tracks' generated samples.
-3. Record the exact licence identifier and evidence file for
-   `Adamawa-Fulfulde-TTS-Dataset` before any release framing.
+3. Preserve the private email permission that authorizes this derived model's
+   research-demo release; do not redistribute the NOODL-1.0 source dataset.
 4. If Common Voice is worth scaling to full training, do so as its own
    deliberate experiment — its multi-speaker, larger-corpus profile is
    different enough from Section 6 that its results shouldn't be assumed.

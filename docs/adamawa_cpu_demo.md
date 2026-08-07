@@ -95,6 +95,8 @@ it does not accept new text.
 4. Confirm the EC2 root volume's `DeleteOnTermination` setting.
 5. Only then terminate the instance.
 
-Model redistribution is separate from permission to train locally. Do not
-publish the checkpoint until the dataset/model-release licence terms have been
-recorded and reviewed.
+The source dataset is NOODL-1.0 and is not redistributed here. Release of the
+derived checkpoint for the research demo relies on separate permission agreed
+by email and confirmed by the user on 2026-08-07. The private correspondence is
+retained outside the repository; see `model/README.md` for the public model-use
+notice and artifact lineage.
