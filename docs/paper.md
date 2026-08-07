@@ -1,9 +1,10 @@
 # Building a Text-to-Speech System for Adamawa Fulfulde: Two Corpora, One Architecture, and an Open Speaker Question
 
 **Status:** research baseline, not production. No native Fulfulde speaker
-has evaluated the output yet. **The corpus used here is Cameroon Adamawa
-Fulfulde (`fub`), not Nigerian Fulfulde (`fuv`)** — see Section 7 before
-assuming this serves a Nigeria-facing use case.
+has evaluated the output yet. **The corpus used here is Adamawa Fulfulde
+(`fub`) as recorded in Cameroon, not Nigerian Fulfulde (`fuv`)** — `fub`
+is also spoken in Nigeria, but these recordings are not, so see Section 7
+before assuming this serves a Nigeria-facing use case.
 
 ## Abstract
 
@@ -29,10 +30,13 @@ question about whether this project should target `fub` or `fuv` at all.
 This project began as an extension of a Tiv-language TTS effort built for
 a proposed Nigeria-facing, NEMA-affiliated early-warning advisory system.
 Fulfulde was a natural next target given its speaker population spans
-Nigeria, Cameroon, and neighboring states. The corpus that was actually
-available and audited, however, is **Cameroon Adamawa Fulfulde (`fub`)**,
-with Ngaoundéré prompts — a distinct variety from **Nigerian Fulfulde
-(`fuv`)**, which is what a Nigeria-facing system would presumably need.
+Nigeria, Cameroon, and neighboring states. Adamawa Fulfulde (`fub`) is
+itself spoken on both sides of that border — in Nigeria's Adamawa and
+Taraba states as well as Cameroon's Adamaoua region. The corpus that was
+actually available and audited, however, was recorded in **Cameroon**,
+with Ngaoundéré prompts, and `fub` remains a distinct ISO code from
+**Nigerian Fulfulde (`fuv`)**, which is what a Nigeria-facing system
+would presumably need.
 This project's own operating rules (`AGENTS.md`) require never merging or
 relabeling the two. We treat this as a research-baseline exercise in
 building the pipeline correctly on available data, not a claim that the
@@ -55,7 +59,7 @@ Two corpora were used, kept source-labelled and never merged, per
 |---|---|
 | Source | Mozilla Common Voice 26.0, `cv-corpus-26.0-2026-06-12/fub` |
 | Licence | CC0-1.0 |
-| Variety | Cameroon Adamawa Fulfulde, Ngaoundéré prompts |
+| Variety | Adamawa Fulfulde (`fub`), recorded in Cameroon, Ngaoundéré prompts |
 | Physical MP3 files | 7,924 |
 | Validated rows | 7,686 (30 invalidated, 208 other/unresolved) |
 | Validated duration (metadata) | 13.123 hours |
@@ -231,11 +235,14 @@ any future full run on this box that isn't yet resolved.
 ## 7. The `fub` vs. `fuv` question
 
 This is the most consequential open item and is stated once more here
-plainly: everything in this report trains and evaluates **Cameroon
-Adamawa Fulfulde**. If the eventual deployment target is Nigerian
-communities and Nigerian Fulfulde speakers, `fuv` is a linguistically
-distinct variety and this model has not been shown to serve that
-audience. Resolving this requires either sourcing a `fuv` corpus or an
+plainly: everything in this report trains and evaluates **Adamawa
+Fulfulde (`fub`) as recorded in Cameroon**. `fub` is also spoken in
+northeastern Nigeria, so the gap is one of recorded variety rather than
+of the language's reach — but it is still a gap, because nothing here was
+trained on or evaluated against Nigerian speech. If the eventual
+deployment target is Nigerian communities and Nigerian Fulfulde speakers,
+`fuv` is a separate ISO code and a linguistically distinct variety, and
+this model has not been shown to serve that audience. Resolving this requires either sourcing a `fuv` corpus or an
 explicit, informed decision from whoever owns the deployment goal that
 `fub` output is an acceptable stand-in — a decision this report does not
 make on its own.

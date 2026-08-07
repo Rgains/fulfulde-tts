@@ -91,7 +91,8 @@ def main() -> None:
     st.title("Adamawa Fulfulde TTS -- research baseline demo")
     st.caption(
         "VITS model trained on the Adamawa-Fulfulde-TTS-Dataset (53,000 steps). "
-        "This is Cameroon Adamawa Fulfulde (fub), not Nigerian Fulfulde (fuv) -- "
+        "This is Adamawa Fulfulde (fub) recorded in Cameroon; fub is also spoken "
+        "in northeastern Nigeria, but it is not Nigerian Fulfulde (fuv) -- "
         "see docs/paper.md. No native speaker has evaluated this output yet; "
         "your listening feedback is exactly what this demo is for."
     )

@@ -19,8 +19,9 @@ cv-corpus-26.0-2026-06-12/fub/
   README.md
 ```
 
-The corpus is Cameroon Adamawa Fulfulde (`fub`), with Ngaoundéré prompts. It is
-not Nigerian Fulfulde (`fuv`).
+The corpus is Adamawa Fulfulde (`fub`) recorded in Cameroon, with Ngaoundéré
+prompts. `fub` is also spoken in northeastern Nigeria, but these recordings are
+Cameroonian, and `fub` is not Nigerian Fulfulde (`fuv`).
 
 ## Prepare the Common Voice data
 
