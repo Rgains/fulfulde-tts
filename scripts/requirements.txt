@@ -1,6 +1,10 @@
-# Streamlit Community Cloud does not read PEP 735 [dependency-groups] from
-# pyproject.toml, so the demo's runtime dependencies are mirrored here.
-# Keep in sync with the cpu-sanity and demo groups in pyproject.toml.
+# Streamlit Community Cloud checks the app directory before the repository
+# root. Keep this file beside demo_streamlit_adamawa.py so it takes precedence
+# over the root uv.lock, which intentionally contains only the lightweight
+# fub-tts package in its default environment.
+#
+# Keep these runtime dependencies in sync with the cpu-sanity and demo groups
+# in ../pyproject.toml.
 #
 # CPU-only wheels: the default PyPI torch build pulls bundled CUDA libraries
 # (multiple GB) that a CPU-only host cannot use and does not have room for.
