@@ -28,6 +28,8 @@ EC2_RUN = Path(
     "/home/ubuntu/fulfulde-tts/checkpoints/adamawa-full/"
     "fub_adamawa_full-August-03-2026_12+59PM-e650b45"
 )
+HF_REPO_ID = os.environ.get("FUB_HF_REPO", "ejnuma/adamawa-fulfulde-tts")
+CHECKPOINT_NAME = "checkpoint_53000.pth"
 EXAMPLE_SENTENCES = (
     "Hmm booɗɗum.",
     "Ɓiira ɓinngel goo wi’ata baaba : hokkam limce;",
@@ -42,13 +44,61 @@ def fub_character_cleaner(text: str) -> str:
 setattr(coqui_cleaners, "fub_character_cleaner", fub_character_cleaner)
 
 
+LFS_POINTER_MAGIC = b"version https://git-lfs.github.com/spec/v1"
+
+
+def checkpoint_problem(checkpoint: Path) -> str | None:
+    """Return a readable reason the checkpoint cannot be loaded, or None if it can."""
+    if not checkpoint.exists():
+        return (
+            f"No checkpoint at {checkpoint}. Point FUB_RUN_DIR at a directory "
+            "holding config.json and checkpoint_53000.pth."
+        )
+    with checkpoint.open("rb") as handle:
+        head = handle.read(len(LFS_POINTER_MAGIC))
+    if head == LFS_POINTER_MAGIC:
+        return (
+            f"{checkpoint} is an unresolved Git LFS pointer of "
+            f"{checkpoint.stat().st_size} bytes, not the model itself. The host "
+            "cloned this repository without Git LFS support, or the repository is "
+            "over its LFS bandwidth quota. Fetch the checkpoint from storage the "
+            "host can read and set FUB_RUN_DIR to it."
+        )
+    return None
+
+
+def hub_token() -> str | None:
+    """Read the Hub token from the environment, falling back to Streamlit secrets."""
+    token = os.environ.get("HF_TOKEN")
+    if token:
+        return token
+    try:
+        return st.secrets["HF_TOKEN"]
+    except Exception:
+        # No secrets file locally, or the key is absent on the host.
+        return None
+
+
+@st.cache_resource(show_spinner="Fetching the model from the Hub...")
+def fetch_from_hub() -> Path:
+    """Download config and checkpoint from the Hub, returning their shared directory."""
+    from huggingface_hub import hf_hub_download
+
+    token = hub_token()
+    config = hf_hub_download(HF_REPO_ID, "config.json", token=token)
+    hf_hub_download(HF_REPO_ID, CHECKPOINT_NAME, token=token)
+    return Path(config).parent
+
+
 def resolve_run_dir() -> Path:
-    """Prefer FUB_RUN_DIR, then the repository's local model/ copy, then the EC2 run."""
+    """FUB_RUN_DIR, then the local model/ copy, then the EC2 run, then the Hub."""
     override = os.environ.get("FUB_RUN_DIR")
     if override:
         return Path(override)
-    local = REPO_ROOT / "model"
-    return local if (local / "config.json").exists() else EC2_RUN
+    for candidate in (REPO_ROOT / "model", EC2_RUN):
+        if (candidate / "config.json").exists():
+            return candidate
+    return fetch_from_hub()
 
 
 @st.cache_resource
@@ -98,12 +148,9 @@ def main() -> None:
     )
 
     run_dir = resolve_run_dir()
-    checkpoint = run_dir / "checkpoint_53000.pth"
-    if not checkpoint.exists():
-        st.error(
-            f"No checkpoint at {checkpoint}. Point FUB_RUN_DIR at a directory "
-            "holding config.json and checkpoint_53000.pth."
-        )
+    problem = checkpoint_problem(run_dir / "checkpoint_53000.pth")
+    if problem:
+        st.error(problem)
         st.stop()
 
     model = load_model(str(run_dir))

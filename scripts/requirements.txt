@@ -11,6 +11,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 coqui-tts==0.27.5
+huggingface-hub>=0.36
 coqui-tts-trainer==0.3.3
 numpy>=1.26,<2
 soundfile>=0.13
