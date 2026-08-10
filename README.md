@@ -4,9 +4,6 @@ This repository contains the auditable data-preparation foundation for an
 Adamawa Fulfulde TTS research baseline. Source speech corpora remain unchanged
 and are excluded from Git.
 
-When continuing this work in a new Codex session or on EC2, read the portable
-[session handoff](sessions.md) before taking action.
-
 ## Current corpus layout
 
 Place the extracted Common Voice language directory at:

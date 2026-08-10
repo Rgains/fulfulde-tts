@@ -4,7 +4,8 @@ GPU smoke gate, derive 24 kHz mono WAVs, and write a training-ready manifest.
 
 Speaker selection uses usable_duration_hours from the full decoded-audio
 scan (reports/generated/common_voice_fub_v26_0/audit.json), not raw
-duration -- see sessions.md's 2026-08-02 note on why that ranking differs.
+duration: quality filtering reorders the top speakers, so the two rankings
+disagree. See docs/paper.md section 2.1.
 Every candidate clip is re-decoded and usability-checked here rather than
 trusted from the manifest, since the manifest's duration gate does not
 include the clipping/silence gate.

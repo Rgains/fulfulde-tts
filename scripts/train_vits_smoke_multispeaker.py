@@ -3,7 +3,7 @@
 
 This exercises real speaker conditioning (multiple anonymous Common Voice
 speaker IDs, not the single-sample character path used by the earlier CPU
-sanity gates) and captures the run metadata context.md requires: fixed seed,
+sanity gates) and captures the run metadata this project requires: fixed seed,
 BF16 stability, peak VRAM, step time, strict checkpoint reload, and three
 generated samples. It does not claim anything about voice quality or
 naturalness -- see docs/common_voice_gpu_smoke_results.md for that caveat

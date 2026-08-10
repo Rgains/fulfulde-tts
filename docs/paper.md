@@ -42,7 +42,7 @@ which reached only a smoke gate, was **recorded in Cameroon** with
 Ngaoundéré prompts. Both are `fub`, and `fub` remains a distinct ISO code
 from **Nigerian Fulfulde (`fuv`)**, the larger Fulfulde variety in
 Nigeria and plausibly what a Nigeria-facing system would need. This
-project's own operating rules (`AGENTS.md`) require never merging or
+project's own operating rules require never merging or
 relabeling the two codes; the geographic split between the corpora is a
 second, independent reason not to pool them. We treat this as a
 research-baseline exercise in building the pipeline correctly on
@@ -51,8 +51,8 @@ Nigeria-facing motivation — that requires either a `fuv` corpus or an
 explicit decision that `fub` output is acceptable for the intended
 audience, neither of which has happened.
 
-Two corpora were used, kept source-labelled and never merged, per
-`context.md`:
+Two corpora were used, kept source-labelled and never merged, per the
+project's data-handling rules:
 
 1. **Mozilla Common Voice 26.0, `fub`** — CC0, multi-speaker, ASR-oriented.
 2. **`Adamawa-Fulfulde-TTS-Dataset`** — a separate, privately supplied
@@ -136,8 +136,8 @@ step across every experiment reported below.
 ## 4. Architecture: an inherited, not re-litigated, decision
 
 This project does not run its own VITS-vs-alternatives comparison.
-`AGENTS.md` and `docs/cpu_sanity_protocol.md` explicitly carry over the
-architecture decision from the sibling Tiv-TTS project's controlled
+The project's operating rules and `docs/cpu_sanity_protocol.md` explicitly
+carry over the architecture decision from the sibling Tiv-TTS project's controlled
 bake-off (VITS selected over Matcha-TTS for its integrated waveform
 decoder and simpler licensing surface) rather than re-opening it. This is
 a deliberate scope decision worth stating plainly: **the claim "VITS
@@ -269,7 +269,7 @@ A second consequence follows for the Common Voice track: it is
 Cameroon-recorded, so a future full run on it would not inherit the
 Nigerian collection geography established above. The two corpora now
 differ in variety-adjacent provenance as well as licence and speaker
-structure, which is a further reason the `AGENTS.md` prohibition on
+structure, which is a further reason the project's prohibition on
 merging them matters in practice.
 
 ## 8. CPU inference deployment
@@ -302,9 +302,9 @@ benchmarked for concurrent or production-scale serving.
   usable hours vs. 1.93) and multi-speaker, so a full run would be a
   materially different — and not yet attempted — experiment from
   Section 6.
-- **Translation is out of scope by design**, not merely unaddressed:
-  `AGENTS.md` explicitly forbids adding translation, warning generation,
-  medical advice, or paraphrasing to the TTS endpoint. Whoever integrates
+- **Translation is out of scope by design**, not merely unaddressed: the
+  project's operating rules explicitly forbid adding translation, warning
+  generation, medical advice, or paraphrasing to the TTS endpoint. Whoever integrates
   this model into an advisory system must solve translation separately
   (see the sibling Tiv project's report for why general-purpose MT was
   found unsuitable for this class of problem, and why a bounded,
@@ -316,8 +316,6 @@ benchmarked for concurrent or production-scale serving.
 
 ## 10. Reproducibility
 
-- Repository rules: `AGENTS.md`, `context.md`
-- Cross-session handoff record: `sessions.md`
 - Common Voice: `docs/cpu_sanity_protocol.md` / `_results.md`,
   `reports/generated/common_voice_fub_v26_0/audit.md`,
   `src/fub_tts/common_voice.py` (`inspect_audio`, `is_usable`,

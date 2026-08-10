@@ -29,7 +29,10 @@ __pycache__/
 /data/manifests/
 /reports/generated/
 
-/model/*
-!/model/README.md
-!/model/config.json
-!/model/checkpoint_53000.pth
+# Model artifacts are published to the Hugging Face Hub, not committed here.
+/model/
+
+# Local working notes and agent instructions stay out of the repository.
+/AGENTS.md
+/context.md
+/sessions.md
