@@ -1,10 +1,11 @@
 # Building a Text-to-Speech System for Adamawa Fulfulde: Two Corpora, One Architecture, and an Open Speaker Question
 
 **Status:** research baseline, not production. No native Fulfulde speaker
-has evaluated the output yet. **The corpus used here is Adamawa Fulfulde
-(`fub`) as recorded in Cameroon, not Nigerian Fulfulde (`fuv`)** — `fub`
-is also spoken in Nigeria, but these recordings are not, so see Section 7
-before assuming this serves a Nigeria-facing use case.
+has evaluated the output yet. **Both corpora are Adamawa Fulfulde (`fub`),
+not Nigerian Fulfulde (`fuv`)**, and they differ in collection geography:
+the fully trained `Adamawa-Fulfulde-TTS-Dataset` was collected in Nigeria,
+while the smoke-gated Common Voice corpus was recorded in Cameroon. See
+Section 7 before assuming either serves a Nigeria-facing use case.
 
 ## Abstract
 
@@ -32,17 +33,23 @@ a proposed Nigeria-facing, NEMA-affiliated early-warning advisory system.
 Fulfulde was a natural next target given its speaker population spans
 Nigeria, Cameroon, and neighboring states. Adamawa Fulfulde (`fub`) is
 itself spoken on both sides of that border — in Nigeria's Adamawa and
-Taraba states as well as Cameroon's Adamaoua region. The corpus that was
-actually available and audited, however, was recorded in **Cameroon**,
-with Ngaoundéré prompts, and `fub` remains a distinct ISO code from
-**Nigerian Fulfulde (`fuv`)**, which is what a Nigeria-facing system
-would presumably need.
-This project's own operating rules (`AGENTS.md`) require never merging or
-relabeling the two. We treat this as a research-baseline exercise in
-building the pipeline correctly on available data, not a claim that the
-result serves the original Nigeria-facing motivation — that requires
-either a `fuv` corpus or an explicit decision that `fub` output is
-acceptable for the intended audience, neither of which has happened.
+Taraba states as well as Cameroon's Adamaoua region.
+
+The two corpora that were available differ on exactly that axis. The
+private `Adamawa-Fulfulde-TTS-Dataset`, which is the corpus that reached
+full training, was **collected in Nigeria**. Mozilla Common Voice `fub`,
+which reached only a smoke gate, was **recorded in Cameroon** with
+Ngaoundéré prompts. Both are `fub`, and `fub` remains a distinct ISO code
+from **Nigerian Fulfulde (`fuv`)**, the larger Fulfulde variety in
+Nigeria and plausibly what a Nigeria-facing system would need. This
+project's own operating rules (`AGENTS.md`) require never merging or
+relabeling the two codes; the geographic split between the corpora is a
+second, independent reason not to pool them. We treat this as a
+research-baseline exercise in building the pipeline correctly on
+available data, not a claim that the result serves the original
+Nigeria-facing motivation — that requires either a `fuv` corpus or an
+explicit decision that `fub` output is acceptable for the intended
+audience, neither of which has happened.
 
 Two corpora were used, kept source-labelled and never merged, per
 `context.md`:
@@ -93,6 +100,7 @@ audio-path leakage.
 
 | Field | Value |
 |---|---|
+| Variety | Adamawa Fulfulde (`fub`), collected in Nigeria (user-confirmed 2026-08-10) |
 | Mapping rows | 1,302 (`Mapping_MP3.tsv`, no speaker field) |
 | Physical MP3 files | 1,303 (1 unreferenced) |
 | Decoded successfully | 1,302 / 1,302 |
@@ -234,18 +242,35 @@ any future full run on this box that isn't yet resolved.
 
 ## 7. The `fub` vs. `fuv` question
 
-This is the most consequential open item and is stated once more here
-plainly: everything in this report trains and evaluates **Adamawa
-Fulfulde (`fub`) as recorded in Cameroon**. `fub` is also spoken in
-northeastern Nigeria, so the gap is one of recorded variety rather than
-of the language's reach — but it is still a gap, because nothing here was
-trained on or evaluated against Nigerian speech. If the eventual
-deployment target is Nigerian communities and Nigerian Fulfulde speakers,
-`fuv` is a separate ISO code and a linguistically distinct variety, and
-this model has not been shown to serve that audience. Resolving this requires either sourcing a `fuv` corpus or an
-explicit, informed decision from whoever owns the deployment goal that
-`fub` output is an acceptable stand-in — a decision this report does not
-make on its own.
+This remains the most consequential open item, but it is narrower than
+earlier drafts of this report claimed, and the correction is worth
+stating explicitly.
+
+An earlier version described the fully trained model as Cameroon-recorded.
+That was wrong: it carried the Common Voice corpus's Ngaoundéré provenance
+across to a checkpoint trained on a different dataset. The corpus that
+reached full training, `Adamawa-Fulfulde-TTS-Dataset`, was **collected in
+Nigeria** (recorded in `configs/adamawa_dataset.json`, user-confirmed on
+2026-08-10; the field previously read "exact collection geography pending
+provenance record"). So the *geographic* objection — that nothing here was
+trained on Nigerian speech — does not hold for that track.
+
+What remains open is the variety question proper, and it is unchanged by
+the above. This model is `fub`. **Nigerian Fulfulde (`fuv`) is a separate
+ISO code and a linguistically distinct variety**, and it is the larger
+Fulfulde variety in Nigeria. Being trained on Nigerian-collected speech
+does not make a `fub` model a `fuv` model, and no evaluation here shows it
+serves `fuv` speakers. Resolving that still requires either sourcing a
+`fuv` corpus or an explicit, informed decision from whoever owns the
+deployment goal that `fub` output is an acceptable stand-in — a decision
+this report does not make on its own.
+
+A second consequence follows for the Common Voice track: it is
+Cameroon-recorded, so a future full run on it would not inherit the
+Nigerian collection geography established above. The two corpora now
+differ in variety-adjacent provenance as well as licence and speaker
+structure, which is a further reason the `AGENTS.md` prohibition on
+merging them matters in practice.
 
 ## 8. CPU inference deployment
 
@@ -260,7 +285,9 @@ benchmarked for concurrent or production-scale serving.
 ## 9. Limitations
 
 - **Variety mismatch risk** (Section 7) — the single most important
-  caveat, and blocking for any Nigeria-facing use.
+  caveat. Narrower than earlier drafts stated, since the fully trained
+  corpus is Nigerian-collected, but still blocking for any use that
+  requires Nigerian Fulfulde (`fuv`) rather than `fub`.
 - **No native-speaker evaluation** for either dataset's output. Every
   number in this report is a pipeline-correctness or optimization result.
 - **Speaker identity unverified** for `Adamawa-Fulfulde-TTS-Dataset`;
