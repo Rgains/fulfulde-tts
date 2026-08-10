@@ -9,7 +9,7 @@
     "dataset": "Adamawa-Fulfulde-TTS-Dataset",
     "dataset_version": "local-snapshot-2026-08-02",
     "language_code": "fub",
-    "variety_scope": "Adamawa Fulfulde; exact collection geography pending provenance record",
+    "variety_scope": "Adamawa Fulfulde (fub); collected in Nigeria, user-confirmed on 2026-08-10; remains distinct from Nigerian Fulfulde (fuv) and is never merged or relabelled as such",
     "speaker_coverage": "not supplied in Mapping_MP3.tsv",
     "licence": "NOODL-1.0 with separate model-release permission agreed by email",
     "licence_status": "dataset licence identified publicly; user confirmed model-release permission by email on 2026-08-07; private correspondence not stored in repository",
