@@ -33,15 +33,22 @@ assuming MIT terms.
 
 ## Language variety
 
-Adamawa Fulfulde (`fub`), collected in Nigeria (confirmed 2026-08-10). `fub` is
-kept distinct from Nigerian Fulfulde (`fuv`) throughout and is never relabelled
-or merged with it. The pipeline preserves Fulfulde orthography: `ɓ`, `ɗ`, `ƴ`,
-`ŋ` are not transliterated, doubled vowels are not collapsed, and the
-typographic apostrophe `’` is preserved where accepted text contains it.
+Adamawa Fulfulde (`fub`), recorded in Nigeria (confirmed 2026-08-10). Adamawa
+Fulfulde is spoken across northeastern Nigeria in Adamawa and Taraba States, as
+well as in Cameroon and Chad; the region is transnational, named for the
+19th-century Adamawa Emirate that spanned both sides of the present border.
 
-Note that this is a *different* corpus from the Common Voice `fub` data also
-audited in this repository, whose recordings are Cameroonian. The two are never
-silently merged.
+The corpus keeps its precise ISO 639-3 code, `fub`, and is never relabelled as
+`fuv`, the separate code for the Fulfulde varieties of northwestern and
+north-central Nigeria. Both varieties are spoken in Nigeria; the codes
+distinguish which variety was recorded, not which country.
+
+The pipeline preserves Fulfulde orthography: `ɓ`, `ɗ`, `ƴ`, `ŋ` are not
+transliterated, doubled vowels are not collapsed, and the typographic apostrophe
+`’` is preserved where accepted text contains it.
+
+This corpus is distinct from the Common Voice `fub` data also audited in this
+repository, which was recorded in Cameroon. The two are never merged.
 
 ## Lineage and training summary
 

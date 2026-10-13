@@ -16,9 +16,19 @@ cv-corpus-26.0-2026-06-12/fub/
   README.md
 ```
 
-The corpus is Adamawa Fulfulde (`fub`) recorded in Cameroon, with Ngaoundéré
-prompts. `fub` is also spoken in northeastern Nigeria, but these recordings are
-Cameroonian, and `fub` is not Nigerian Fulfulde (`fuv`).
+The corpus is Adamawa Fulfulde (`fub`), spoken across northeastern Nigeria in
+Adamawa and Taraba States as well as in Cameroon and Chad. The region is
+transnational, named for the 19th-century Adamawa Emirate that spanned both sides
+of the present border. These particular Common Voice recordings were made in
+Cameroon with Ngaoundéré prompts; that is recorded here because recording
+location bears on variety validity, not because it changes the language. The
+released model is trained on a separate Nigeria-collected corpus — see
+[Separate Adamawa-Fulfulde-TTS-Dataset](#separate-adamawa-fulfulde-tts-dataset).
+
+Data labelled `fub` keeps the `fub` code and is never relabelled as `fuv`, the
+separate ISO 639-3 code for the Fulfulde varieties of northwestern and
+north-central Nigeria. Both varieties are spoken in Nigeria; the codes
+distinguish which variety was recorded, not which country.
 
 ## Prepare the Common Voice data
 

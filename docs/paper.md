@@ -1,11 +1,15 @@
 # Building a Text-to-Speech System for Adamawa Fulfulde: Two Corpora, One Architecture, and an Open Speaker Question
 
 **Status:** research baseline, not production. No native Fulfulde speaker
-has evaluated the output yet. **Both corpora are Adamawa Fulfulde (`fub`),
-not Nigerian Fulfulde (`fuv`)**, and they differ in collection geography:
-the fully trained `Adamawa-Fulfulde-TTS-Dataset` was collected in Nigeria,
-while the smoke-gated Common Voice corpus was recorded in Cameroon. See
-Section 7 before assuming either serves a Nigeria-facing use case.
+has evaluated the output yet. The fully trained
+`Adamawa-Fulfulde-TTS-Dataset` corpus was **collected in Nigeria**; the
+smoke-gated Common Voice corpus was recorded in Cameroon. Both are Adamawa
+Fulfulde (`fub`), spoken in northeastern Nigeria as well as in Cameroon and
+Chad. `fuv` is a separate ISO code for the Fulfulde varieties of
+northwestern and north-central Nigeria; both varieties are spoken in
+Nigeria, so the codes distinguish variety rather than country. Section 7
+sets out which variety a Nigeria-facing deployment should target — an open
+product decision, not a gap in collection geography.
 
 ## Abstract
 

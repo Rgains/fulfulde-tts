@@ -22,21 +22,23 @@ characters, train stably on an NVIDIA L4, reload its checkpoint strictly, and
 generate valid waveforms for held-out text. This is a data-flow and baseline
 experiment, not evidence of production readiness.
 
-Adamawa Fulfulde (`fub`) is kept distinct from Nigerian Fulfulde (`fuv`). The
-pipeline does not transliterate `ɓ`, `ɗ`, `ƴ`, or `ŋ`, does not collapse doubled
-vowels, and preserves the typographic apostrophe `’` where it occurs in accepted
-text.
+Adamawa Fulfulde (`fub`) retains its own ISO 639-3 code and is never relabelled
+as Nigerian Fulfulde (`fuv`). Both varieties are spoken in Nigeria; the codes
+distinguish variety rather than country. The pipeline does not transliterate
+`ɓ`, `ɗ`, `ƴ`, or `ŋ`, does not collapse doubled vowels, and preserves the
+typographic apostrophe `’` where it occurs in accepted text.
 
 ## 2. Dataset and authorization
 
 The source snapshot contains 1,302 mapped MP3 recordings and one additional
 unreferenced MP3. All 1,302 mapped files decoded successfully. Their combined
-duration is 3.542 hours; the source format is mono 48 kHz MP3. The dataset is
-distributed under NOODL-1.0. The user confirmed authorization for local
-research training on 2026-08-02 and confirmed on 2026-08-07 that a separate
-email agreement authorizes release of the derived checkpoint for this research
-demo. The private correspondence remains outside the repository, and the
-source speech dataset is not redistributed.
+duration is 3.542 hours; the source format is mono 48 kHz MP3. The recordings
+were collected in Nigeria, confirmed on 2026-08-10. The dataset is distributed
+under NOODL-1.0. The user confirmed authorization for local research training
+on 2026-08-02 and confirmed on 2026-08-07 that a separate email agreement
+authorizes release of the derived checkpoint for this research demo. The
+private correspondence remains outside the repository, and the source speech
+dataset is not redistributed.
 
 `Mapping_MP3.tsv` provides filenames and transcripts but no speaker field.
 Consequently, the experiment uses an unconditioned VITS model and labels speaker
