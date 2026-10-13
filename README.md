@@ -106,3 +106,21 @@ demo elsewhere.
 The checkpoint is a research baseline, not a production model. Review
 `model/README.md` for its separate licence notice, lineage, language-variety
 scope, and evaluation limitations.
+
+## Licence
+
+The code and original documentation in this repository are MIT (see `LICENSE`),
+copyright Tornado Tech Nigeria Ltd. (ResearchGains).
+
+MIT covers this repository's own source only. It does not relicense the source
+corpora, any third-party dependency, or any model checkpoint:
+
+- **Common Voice Scripted Speech 26.0 — Adamawa Fulfulde (`fub`)** is CC-0, and
+  is not redistributed here. By using it you agree not to attempt to identify
+  the speakers.
+- **Adamawa-Fulfulde-TTS-Dataset** is NOODL-1.0. Source redistribution remains
+  prohibited; the dataset stays outside Git. Release of a derived checkpoint for
+  this research demo was agreed separately with the dataset holder by email.
+- **Model checkpoints** carry their own licence, declared per release on the
+  Hugging Face Hub alongside lineage, language-variety scope, and evaluation
+  limitations. The repository's MIT licence grants no licence over weights.

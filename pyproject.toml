@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Auditable Adamawa Fulfulde (fub) TTS data preparation"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [
   { name = "Fulfulde TTS contributors" },
 ]
