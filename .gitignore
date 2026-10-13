@@ -29,8 +29,10 @@ __pycache__/
 /data/manifests/
 /reports/generated/
 
-# Model artifacts are published to the Hugging Face Hub, not committed here.
-/model/
+# Model weights are published to the Hugging Face Hub, not committed here.
+# The model card is documentation and belongs in the repository.
+/model/*
+!/model/README.md
 
 # Local working notes and agent instructions stay out of the repository.
 /AGENTS.md
